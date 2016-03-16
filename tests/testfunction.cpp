@@ -1,11 +1,9 @@
 #include <string>
 #include <iostream>
-#include <boost/lambda/lambda.hpp>
 #include "sqlite3pp.h"
 #include "sqlite3ppext.h"
 
 using namespace std;
-using namespace boost::lambda;
 
 int test0()
 {
@@ -38,7 +36,7 @@ std::string test6(std::string const& s1, std::string const& s2, std::string cons
   return s1 + s2 + s3;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
   try {
     sqlite3pp::database db("test.db");
@@ -48,8 +46,8 @@ int main(int argc, char* argv[])
     cout << func.create("h1", &test1) << endl;
     cout << func.create("h2", &test2, 1) << endl;
     cout << func.create("h3", &test3, 1) << endl;
-    cout << func.create<int ()>("h4", constant(500)) << endl;
-    cout << func.create<int (int)>("h5", _1 + constant(1000)) << endl;
+    cout << func.create<int ()>("h4", []{return 500;}) << endl;
+    cout << func.create<int (int)>("h5", [](int i){return i + 1000;}) << endl;
     cout << func.create<string (string, string, string)>("h6", &test6) << endl;
 
     sqlite3pp::query qry(db, "SELECT h0(), h1(), h2('x'), h3('y'), h4(), h5(10), h6('a', 'b', 'c')");

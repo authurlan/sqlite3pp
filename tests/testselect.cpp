@@ -4,7 +4,7 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
+int main()
 {
   try {
     sqlite3pp::database db("test.db");
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
       for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 	int id;
 	char const* name, *phone;
-	boost::tie(id, name, phone) = (*i).get_columns<int, char const*, char const*>(0, 1, 2);
+	std::tie(id, name, phone) = (*i).get_columns<int, char const*, char const*>(0, 1, 2);
 	cout << id << "\t" << name << "\t" << phone << endl;
       }
       cout << endl;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
       qry.reset();
 
       for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
-	int id;
+	int id = 0;
 	std::string name, phone;
 	(*i).getter() >> sqlite3pp::ignore >> name >> phone;
 	cout << id << "\t" << name << "\t" << phone << endl;

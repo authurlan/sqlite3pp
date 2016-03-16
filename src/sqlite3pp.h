@@ -51,8 +51,6 @@ namespace sqlite3pp
   class SQLITE3PP_Export null_type {};
   SQLITE3PP_Export extern null_type ignore;
 
-  SQLITE3PP_Export int enable_shared_cache(bool fenable);
-
   class SQLITE3PP_Export database : boost::noncopyable
   {
     friend class statement;

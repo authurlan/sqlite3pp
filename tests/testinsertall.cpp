@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
+int main()
 {
   try {
     sqlite3pp::database db("test.db");
@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 			       "INSERT INTO contacts (name, phone) VALUES (:name, '9012');"
 			       );
 	{
-	  cout << cmd.bind(":name", "user") << endl;
+	  cout << cmd.bind(":name", "user", sqlite3pp::copy) << endl;
 	  cout << cmd.execute_all() << endl;
 	}
       }

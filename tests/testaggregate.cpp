@@ -1,11 +1,9 @@
 #include <string>
 #include <iostream>
-#include <boost/lambda/lambda.hpp>
 #include "sqlite3pp.h"
 #include "sqlite3ppext.h"
 
 using namespace std;
-using namespace boost::lambda;
 
 void step0(sqlite3pp::ext::context& c)
 {
@@ -69,7 +67,7 @@ struct strcnt
     s_ += s;
   }
   int finish() {
-    return s_.size();
+    return static_cast<int>(s_.size());
   }
   string s_;
 };
@@ -85,7 +83,7 @@ struct plussum
   int n_;
 };
 
-int main(int argc, char* argv[])
+int main()
 {
   try {
     sqlite3pp::database db("foods.db");

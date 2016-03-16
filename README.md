@@ -1,11 +1,14 @@
+> #### NEWS
+> ###### Feb 26, 2016 - I added the version number in sqlite3pp.h so that users can check against in their code. The current version is 1.0.0 and it can be accessed using git tag "v1.0.0".<br>And now, the recommeded files are ones in headeronly_src directory.
+> ###### Feb 9, 2016 - I just added header only version of sqlite3pp in headeronly_src directory. It's still in beta, which means no one is trying it in fields yet. Please try it and report bugs if you find any.
+> ###### Feb 4, 2015 - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.
+
 sqlite3pp
 =========
 
-SQLite3++ - C++ wrapper of SQLite3 API.
+This library makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
 
-It makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
-
-With ext::function class, it's also easy to write the sqlite3's functions and aggregations.
+With ext::function class, it's also easy to use the sqlite3's functions and aggregations in C++.
 
 # Usage
 
@@ -25,24 +28,24 @@ cmd.execute();
 
 ```cpp
 sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
-cmd.bind(1, "Mike");
-cmd.bind(2, "555-1234");
+cmd.bind(1, "Mike", sqlite3pp::nocopy);
+cmd.bind(2, "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
 ```cpp
 sqlite3pp::command cmd(
   db, "INSERT INTO contacts (name, phone) VALUES (?100, ?101)");
-cmd.bind(100, "Mike");
-cmd.bind(101, "555-1234");
+cmd.bind(100, "Mike", sqlite3pp::nocopy);
+cmd.bind(101, "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
 ```cpp
 sqlite3pp::command cmd(
   db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
-cmd.bind(":user", "Mike");
-cmd.bind(":phone", "555-1234");
+cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
@@ -53,8 +56,8 @@ sqlite3pp::transaction xct(db);
 {
   sqlite3pp::command cmd(
     db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
-  cmd.bind(":user", "Mike");
-  cmd.bind(":phone", "555-1234");
+  cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+  cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
   cmd.execute();
 }
 xct.rollback();
@@ -91,10 +94,9 @@ for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 
 ```cpp
 for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
-  int id;
   string name, phone;
   (*i).getter() >> sqlite3pp::ignore >> name >> phone;
-  cout << id << "\t" << name << "\t" << phone << endl;
+  cout << "\t" << name << "\t" << phone << endl;
 }
 ```
 
@@ -121,9 +123,7 @@ struct rollback_handler
 
 sqlite3pp::database db("test.db");
 
-using namespace boost::lambda;
-
-db.set_commit_handler((cout << constant("handle_commit\n"), 0));
+db.set_commit_handler([]{ cout << "handle_commit\n"; return 0; });
 db.set_rollback_handler(rollback_handler());
 ```
 
@@ -150,7 +150,9 @@ struct handler
   int cnt_;
 };
 
-db.set_update_handler(boost::bind(&handler::handle_update, &h, _1, _2, _3, _4));
+using namespace std::placeholders;
+
+db.set_update_handler(std::bind(&handler::handle_update, &h, _1, _2, _3, _4));
 ```
 
 ## function
@@ -206,9 +208,7 @@ string test6(string const& s1, string const& s2, string const& s3)
   return s1 + s2 + s3;
 }
 
-using namespace boost::lambda;
-
-func.create<int (int)>("test5", _1 + constant(1000));
+func.create<int (int)>("test5", [](int i){ return i + 10000; });
 func.create<string (string, string, string)>("test6", &test6);
 ```
 
@@ -293,7 +293,9 @@ sqlite3pp::query qry(
 
 # See also
 * http://www.sqlite.org/
-* http://www.ideathinking.com/2007/09/c-of-day-43-sqlite3-c-wrapper-1.html (Korean)
-* http://www.ideathinking.com/2007/09/c-of-day-44-sqlite3-c-wrapper-2.html (Korean)
-* http://www.ideathinking.com/2007/09/c-of-day-45-sqlite3-c-wrapper-3.html (Korean)
-* https://code.google.com/p/sqlite3pp/
+* https://code.google.com/p/sqlite3pp/ 
+* https://github.com/iwongu/sqlite3pp/wiki/Using-variadic-templates-with-different-parameter-types
+* https://github.com/iwongu/sqlite3pp/wiki/Using-variadic-templates-with-function-calls-using-tuple
+* [c-of-day-43-sqlite3-c-wrapper-1](http://idea-thinking.blogspot.com/2007/09/c-of-day-43-sqlite3-c-wrapper-1.html) (Korean)
+* [c-of-day-44-sqlite3-c-wrapper-2](http://idea-thinking.blogspot.com/2007/09/c-of-day-44-sqlite3-c-wrapper-2.html) (Korean)
+* [c-of-day-45-sqlite3-c-wrapper-3](http://idea-thinking.blogspot.com/2007/09/c-of-day-45-sqlite3-c-wrapper-3.html) (Korean)

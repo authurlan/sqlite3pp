@@ -64,11 +64,6 @@ namespace sqlite3pp
 
   } // namespace
 
-  int enable_shared_cache(bool fenable)
-  {
-    return sqlite3_enable_shared_cache(fenable);
-  }
-
   database::database(char const* dbname) : db_(0)
   {
     if (dbname) {
@@ -533,7 +528,9 @@ namespace sqlite3pp
 
   transaction::transaction(database& db, bool fcommit, bool freserve) : db_(&db), fcommit_(fcommit)
   {
-    db_->execute(freserve ? "BEGIN IMMEDIATE" : "BEGIN");
+    int rc = db_->execute(freserve ? "BEGIN IMMEDIATE" : "BEGIN");
+    if (rc != SQLITE_OK)
+      throw database_error(*db_);
   }
 
   transaction::~transaction()
